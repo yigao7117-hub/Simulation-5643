@@ -1,0 +1,5 @@
+condition,desc,episodes,successes,success_rate,ci95_low,ci95_high,episodes_with_wrong_object_contact
+C0,original,20,18,0.9,0.699,0.972,0
+C1,+2 ordinary,20,8,0.4,0.219,0.613,0
+C2,+5 ordinary,20,3,0.15,0.052,0.36,1
+C3,+5 similar,20,0,0.0,0.0,0.161,5

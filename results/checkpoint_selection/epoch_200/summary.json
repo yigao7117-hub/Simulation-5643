@@ -1,0 +1,17 @@
+{
+  "condition": "C0",
+  "kind": "ordinary",
+  "n": 0,
+  "desc": "original scene",
+  "episodes": 6,
+  "successes": 0,
+  "success_rate": 0.0,
+  "failure_types": {
+    "timeout_fail_stack_green": 2,
+    "timeout_fail_grasp_red": 3,
+    "timeout_fail_stack_red": 1
+  },
+  "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_200.pth",
+  "seed_base": 1000,
+  "horizon": 800
+}

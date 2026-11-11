@@ -1,0 +1,20 @@
+{
+  "C0_vs_C1": {
+    "pairs": 20,
+    "C0_only_success": 10,
+    "C1_only_success": 0,
+    "mcnemar_exact_p": 0.002
+  },
+  "C0_vs_C2": {
+    "pairs": 20,
+    "C0_only_success": 15,
+    "C2_only_success": 0,
+    "mcnemar_exact_p": 0.0001
+  },
+  "C0_vs_C3": {
+    "pairs": 20,
+    "C0_only_success": 18,
+    "C3_only_success": 0,
+    "mcnemar_exact_p": 0.0
+  }
+}

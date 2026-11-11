@@ -1,0 +1,7 @@
+episode,seed,outcome,success,steps,max_stage,failure_type,wrong_object_steps,min_ee_distractor_xy,distractors,condition
+0,1000,timeout,0,800,grasped_green,timeout_fail_stack_green,0,,[],C0
+1,1001,success,1,244,grasped_green,,0,,[],C0
+2,1002,timeout,0,800,grasped_green,timeout_fail_stack_green,0,,[],C0
+3,1003,timeout,0,800,grasped_green,timeout_fail_stack_green,0,,[],C0
+4,1004,timeout,0,800,grasped_green,timeout_fail_stack_green,0,,[],C0
+5,1005,timeout,0,800,stacked_red,timeout_fail_grasp_green,0,,[],C0
