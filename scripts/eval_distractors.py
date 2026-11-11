@@ -28,6 +28,9 @@ CONDITIONS = {
     "C1": {"kind": "ordinary", "n": 2, "desc": "+2 ordinary distractors"},
     "C2": {"kind": "ordinary", "n": 5, "desc": "+5 ordinary distractors"},
     "C3": {"kind": "similar", "n": 5, "desc": "+5 target-similar distractors"},
+    # ablation: which property of the similar distractors matters?
+    "C4": {"kind": "shape_only", "n": 5, "desc": "+5 cubes in ordinary colors (shape only)"},
+    "C5": {"kind": "color_only", "n": 5, "desc": "+5 ordinary shapes in target-like colors (color only)"},
 }
 
 parser = argparse.ArgumentParser()

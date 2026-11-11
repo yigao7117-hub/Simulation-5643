@@ -11,8 +11,8 @@ import sys
 from collections import Counter
 
 run_dir = os.path.abspath(sys.argv[1])
-CONDS = ["C0", "C1", "C2", "C3"]
-DESC = {"C0": "original", "C1": "+2 ordinary", "C2": "+5 ordinary", "C3": "+5 similar"}
+CONDS = ["C0", "C1", "C2", "C3", "C4", "C5"]
+DESC = {"C0": "original", "C1": "+2 ordinary", "C2": "+5 ordinary", "C3": "+5 similar", "C4": "+5 cubes (shape)", "C5": "+5 colors (color)"}
 
 
 def wilson(k, n, z=1.96):
@@ -73,6 +73,14 @@ if "C0" in data:
         cc = sum(1 for s in seeds if data["C0"][s]["success"] == "0" and data[c][s]["success"] == "1")
         tests[f"C0_vs_{c}"] = {"pairs": len(seeds), "C0_only_success": b, f"{c}_only_success": cc,
                                "mcnemar_exact_p": round(mcnemar_exact(b, cc), 4)}
+# 2x2 ablation (shape x color): compare conditions that differ in one factor only
+for a, b in [("C2", "C4"), ("C2", "C5"), ("C5", "C3"), ("C4", "C3")]:
+    if a in data and b in data:
+        seeds = sorted(set(data[a]) & set(data[b]))
+        x = sum(1 for s in seeds if data[a][s]["success"] == "1" and data[b][s]["success"] == "0")
+        y = sum(1 for s in seeds if data[a][s]["success"] == "0" and data[b][s]["success"] == "1")
+        tests[f"{a}_vs_{b}"] = {"pairs": len(seeds), f"{a}_only_success": x, f"{b}_only_success": y,
+                                "mcnemar_exact_p": round(mcnemar_exact(x, y), 4)}
 with open(os.path.join(run_dir, "paired_tests.json"), "w") as f:
     json.dump(tests, f, indent=2)
 
@@ -88,7 +96,7 @@ try:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots(figsize=(5.5, 3.6), dpi=150)
+    fig, ax = plt.subplots(figsize=(1.4 * len(rows) + 0.5, 3.6), dpi=150)
     xs = [f"{r['condition']}\n{r['desc']}" for r in rows]
     ys = [r["success_rate"] for r in rows]
     err = [[y - r["ci95_low"] for y, r in zip(ys, rows)], [r["ci95_high"] - y for y, r in zip(ys, rows)]]

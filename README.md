@@ -14,37 +14,61 @@ bottom left C2 (+5 ordinary), bottom right C3 (+5 target-similar). Full videos a
 
 ## Key results
 
-Pilot: 4 conditions × 20 paired episodes (seeds 1000–1019), horizon 800 steps, policy checkpoint at epoch 480.
+4 main conditions plus a 2×2 shape/colour ablation (C4, C5). Each condition has 50 paired episodes (seeds 1000–1049).
+The horizon is 800 steps and the policy checkpoint is from epoch 480.
 
-| Condition | Distractors | Success | Rate (95% Wilson CI) | vs. C0, paired (exact McNemar) |
+| Condition | Distractors (5 unless noted) | Success | Rate (95% Wilson CI) | vs. C0, paired (exact McNemar) |
 |---|---|---|---|---|
-| C0 | none | 18/20 | **0.90** (0.70–0.97) | – |
-| C1 | 2 ordinary objects | 8/20 | **0.40** (0.22–0.61) | 10 lost, 0 gained, p = 0.002 |
-| C2 | 5 ordinary objects | 3/20 | **0.15** (0.05–0.36) | 15 lost, 0 gained, p = 0.0001 |
-| C3 | 5 target-similar cubes | 0/20 | **0.00** (0.00–0.16) | 18 lost, 0 gained, p < 0.0001 |
+| C0 | none | 43/50 | **0.86** (0.74–0.93) | – |
+| C1 | 2 ordinary objects | 23/50 | **0.46** (0.33–0.60) | 22 lost, 2 gained, p < 0.001 |
+| C2 | ordinary shapes, ordinary colours | 8/50 | **0.16** (0.08–0.29) | 36 lost, 1 gained, p < 0.001 |
+| C3 | cubes, target-like colours | 5/50 | **0.10** (0.04–0.21) | 38 lost, 0 gained, p < 0.001 |
+| C4 | cubes, ordinary colours *(ablation)* | 0/50 | **0.00** (0.00–0.07) | 43 lost, 0 gained, p < 0.001 |
+| C5 | ordinary shapes, target-like colours *(ablation)* | 8/50 | **0.16** (0.08–0.29) | 35 lost, 0 gained, p < 0.001 |
 
-<img src="media/success_rates.png" width="420">
+<img src="media/success_rates.png" width="560">
 
-Failure breakdown (episode counts):
+**Shape × colour ablation.** C2, C4, C5 and C3 use the same 5 positions and orientations. Each pair below differs
+in exactly one factor: shape (ordinary objects or cubes the size of the targets) or colour (ordinary, or
+hue-shifted versions of the targets' red, green and blue).
 
-| | Wrong object | Cube dropped | Timeout: green not grasped | Timeout: green not stacked | Timeout: red not stacked |
+| | ordinary colours | target-like colours |
+|---|---|---|
+| **ordinary shapes** | C2: 0.16 | C5: 0.16 |
+| **cube shape** | C4: 0.00 | C3: 0.10 |
+
+| Paired comparison | Factor changed | Result |
+|---|---|---|
+| C2 → C4 | shape → cube | 8 lost, 0 gained, **p = 0.008** |
+| C2 → C5 | colour → target-like | 6 lost, 6 gained, p = 1.0 |
+| C5 → C3 | shape → cube | 5 lost, 2 gained, p = 0.45 |
+| C4 → C3 | colour → target-like | 0 lost, 5 gained, p = 0.06 |
+
+Failure breakdown (episode counts, 50 per condition):
+
+| | Wrong object | Cube dropped | Timeout: red not stacked | Timeout: green not grasped | Timeout: green not stacked |
 |---|---|---|---|---|---|
-| C0 | 0 | 0 | 0 | 2 | 0 |
-| C1 | 0 | 4 | 0 | 8 | 0 |
-| C2 | 1 | 3 | 3 | 9 | 1 |
-| C3 | 5 | 1 | 4 | 10 | 0 |
+| C0 | 0 | 0 | 0 | 4 | 3 |
+| C1 | 1 | 4 | 3 | 1 | 18 |
+| C2 | 6 | 3 | 2 | 11 | 20 |
+| C3 | 14 | 3 | 0 | 7 | 21 |
+| C4 | 7 | 5 | 4 | 15 | 19 |
+| C5 | 11 | 3 | 5 | 7 | 16 |
+
+*"Timeout: red not stacked" combines the timeouts at grasping red and at stacking red.*
 
 Findings:
 
 - **Images alone cause the drop.** Distractors have no collision, so every lost episode comes from the change in
   the images.
-- **More distractors, more failures.** Success falls monotonically as distractors are added: 90% → 40% → 15%.
-  Target-similar cubes do the most damage (0%).
-- **Every pair goes C0's way.** No seed succeeds with distractors while failing without them.
-- **Failures happen in the second half.** The first sub-task (red cube onto blue) is completed in 79 of 80
-  episodes. The policy then fails to grasp or place the green cube.
-- **Similar cubes attract the gripper.** Gripper-closing near a distractor ("wrong object") occurs mostly with
-  similar cubes (5 episodes in C3).
+- **More distractors, more failures.** Success falls from 86% with none to 46% with 2 and 16% with 5 ordinary
+  objects. Discordant pairs almost all go C0's way (at most 2 of 50 seeds succeed only with distractors).
+- **Shape matters more than colour.** Distractors shaped like the targets hurt the most: in C4, cubes in ordinary
+  colours bring success to 0/50. Making ordinary objects target-coloured (C2 → C5) does not change the success rate.
+- **Colour changes which object the policy goes for.** Target-like colours raise wrong-object approaches (C2 6 → C5 11;
+  C4 7 → C3 14) without lowering success further. The C4 → C3 gain (5 seeds) is not significant (p = 0.06).
+- **Failures happen in the second half.** Most failures happen after the red cube is placed, while grasping or
+  stacking the green cube.
 
 ## Experimental design
 
@@ -54,7 +78,7 @@ Findings:
 | Policy | robomimic BC-RNN-GMM, ResNet18 + SpatialSoftmax encoders |
 | Observations | `table_cam` + `wrist_cam` RGB (200×200), `eef_pos`, `eef_quat`, `gripper_pos` (no object poses) |
 | Training data | 1000 demos generated with Isaac Lab Mimic from the official Franka stack teleop dataset |
-| Episodes | 20 per condition; episode *i* uses seed 1000+*i* in every condition |
+| Episodes | 50 per condition; episode *i* uses seed 1000+*i* in every condition |
 | Fixed across conditions | cameras, lighting, textures, targets, horizon (800 steps) |
 
 **Distractors** ([`envs/distractors.py`](envs/distractors.py)):
@@ -66,6 +90,8 @@ Findings:
 - **Ordinary set.** A yellow cylinder, purple sphere, orange cone, white capsule and black cylinder.
 - **Target-similar set.** Cubes of the same size as the targets, in orange-red, violet, teal, crimson and
   yellow-green. The targets remain the only pure red, blue and green cubes, so the task is still uniquely specified.
+- **Ablation sets.** C4 uses cubes in the ordinary colours. C5 uses the ordinary shapes in the target-like colours.
+  Each keeps the same slot order, so positions and orientations match C2 and C3.
 - **Layout is seeded separately.** The layout comes from its own RNG seeded with the episode seed. Cube poses and
   joint noise are therefore identical across conditions.
 
@@ -92,10 +118,10 @@ scripts/
   analyze.py                   success rates, Wilson CIs, failure breakdown, paired McNemar tests, figure
   make_media.py                labelled 2x2 comparison videos into media/
 results/
-  pilot_e480/                  main results: summary_all.csv, failure_breakdown.csv, paired_tests.json,
+  pilot_e480/                  main results (C0-C5): summary_all.csv, failure_breakdown.csv, paired_tests.json,
                                success_rates.png, eval_C*/episodes.csv + summary.json
   checkpoint_selection/        C0 success of epochs 100-480 (used to pick epoch 480)
-  layout_preview/              first frames of C2/C3 layouts (seeds 1000-1002)
+  layout_preview/              first frames of C2-C5 layouts
 media/                         comparison videos (grid) and per-condition clips for seeds 1000, 1001, 1003
 ```
 
@@ -163,8 +189,8 @@ python scripts/eval_distractors.py --condition C3 --preview --num_episodes 3 --r
 # one condition
 python scripts/eval_distractors.py --condition C2 --checkpoint <model_epoch_480.pth> --run_name pilot
 
-# full pilot (C0-C3 x 20 episodes) + analysis + media
-scripts/run_pilot.sh <model_epoch_480.pth> pilot 20
+# full pilot (C0-C3 x 50 episodes) + analysis + media; C4/C5 run individually like C2 above
+scripts/run_pilot.sh <model_epoch_480.pth> pilot 50
 python3 scripts/analyze.py results/pilot
 ```
 
@@ -179,7 +205,8 @@ python3 scripts/analyze.py results/pilot
   | Epoch | 200 | 300 | 400 | 480 |
   |---|---|---|---|---|
   | C0 success | 0/6 | 3/6 | 1/6 | 5/6 |
-- **Small sample.** n = 20 per condition is a pilot, so the confidence intervals are wide.
+- **Small sample.** n = 50 per condition still gives fairly wide confidence intervals. Effects in the ablation
+  smaller than about 10 percentage points cannot be resolved.
 - **Non-deterministic physics.** GPU PhysX is not bit-exact. Pairing fixes the initial state but not the full
   trajectory, so a rerun of the same seed can end differently.
 - **Approximate failure labels.** `wrong_object` is a geometric heuristic, not a contact check.

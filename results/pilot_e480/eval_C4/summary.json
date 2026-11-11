@@ -1,0 +1,19 @@
+{
+  "condition": "C4",
+  "kind": "shape_only",
+  "n": 5,
+  "desc": "+5 cubes in ordinary colors (shape only)",
+  "episodes": 50,
+  "successes": 0,
+  "success_rate": 0.0,
+  "failure_types": {
+    "wrong_object": 7,
+    "timeout_fail_stack_green": 19,
+    "timeout_fail_grasp_green": 15,
+    "manipulation_drop": 5,
+    "timeout_fail_stack_red": 4
+  },
+  "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_480.pth",
+  "seed_base": 1000,
+  "horizon": 800
+}

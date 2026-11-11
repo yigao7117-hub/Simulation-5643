@@ -1,0 +1,20 @@
+{
+  "condition": "C5",
+  "kind": "color_only",
+  "n": 5,
+  "desc": "+5 ordinary shapes in target-like colors (color only)",
+  "episodes": 50,
+  "successes": 8,
+  "success_rate": 0.16,
+  "failure_types": {
+    "timeout_fail_stack_green": 16,
+    "wrong_object": 11,
+    "timeout_fail_stack_red": 4,
+    "timeout_fail_grasp_green": 7,
+    "manipulation_drop": 3,
+    "timeout_fail_grasp_red": 1
+  },
+  "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_480.pth",
+  "seed_base": 1000,
+  "horizon": 800
+}

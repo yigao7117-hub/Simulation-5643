@@ -1,5 +1,7 @@
 condition,desc,episodes,successes,success_rate,ci95_low,ci95_high,episodes_with_wrong_object_contact
-C0,original,20,18,0.9,0.699,0.972,0
-C1,+2 ordinary,20,8,0.4,0.219,0.613,0
-C2,+5 ordinary,20,3,0.15,0.052,0.36,1
-C3,+5 similar,20,0,0.0,0.0,0.161,5
+C0,original,50,43,0.86,0.738,0.93,0
+C1,+2 ordinary,50,23,0.46,0.33,0.596,1
+C2,+5 ordinary,50,8,0.16,0.083,0.285,6
+C3,+5 similar,50,5,0.1,0.043,0.214,14
+C4,+5 cubes (shape),50,0,0.0,0.0,0.071,7
+C5,+5 colors (color),50,8,0.16,0.083,0.285,11

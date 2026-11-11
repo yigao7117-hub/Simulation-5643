@@ -3,11 +3,12 @@
   "kind": "ordinary",
   "n": 0,
   "desc": "original scene",
-  "episodes": 20,
-  "successes": 18,
-  "success_rate": 0.9,
+  "episodes": 50,
+  "successes": 43,
+  "success_rate": 0.86,
   "failure_types": {
-    "timeout_fail_stack_green": 2
+    "timeout_fail_stack_green": 3,
+    "timeout_fail_grasp_green": 4
   },
   "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_480.pth",
   "seed_base": 1000,

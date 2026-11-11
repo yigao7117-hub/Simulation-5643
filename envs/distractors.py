@@ -7,6 +7,7 @@ Design (pilot study):
   * Placement uses a dedicated RNG seeded by the episode seed, so cube poses / joint noise (drawn from the
     global RNGs by the original reset events) are identical across conditions -> paired design.
   * "ordinary": non-cube shapes in non-target colors.
+  * "shape_only" / "color_only": 2x2 ablation -- cubes in the ordinary colors / ordinary shapes in the similar colors.
     "similar":  5 cm cubes (same shape/size as targets) in hue-shifted colors; the targets remain the only
                 pure red / blue / green cubes, so the task is still uniquely specified.
 Unused slots are parked far outside every camera's view.
@@ -47,6 +48,10 @@ SIMILAR = [
     ("cube", (0.75, 0.05, 0.40)),  # crimson-magenta (near red)
     ("cube", (0.45, 0.70, 0.05)),  # yellow-green (near green target)
 ]
+
+# 2x2 ablation (shape x color), same slot order as above:
+SHAPE_ONLY = [("cube", rgb) for _, rgb in ORDINARY]                            # target-like shape, ordinary colors
+COLOR_ONLY = [(shape, rgb) for (shape, _), (_, rgb) in zip(ORDINARY, SIMILAR)]  # ordinary shapes, target-like colors
 
 
 def _srgb_to_linear(rgb):
@@ -120,7 +125,7 @@ def place_distractors(env, env_ids, n_active: int, half_heights: list[float], ba
 def add_distractors(env_cfg, kind: str, n_active: int):
     """Mutate a FrankaCubeStackVisuomotorEnvCfg in place (call before launch)."""
     assert 0 <= n_active <= MAX_SLOTS
-    palette = {"ordinary": ORDINARY, "similar": SIMILAR}[kind]
+    palette = {"ordinary": ORDINARY, "similar": SIMILAR, "shape_only": SHAPE_ONLY, "color_only": COLOR_ONLY}[kind]
     half_heights = []
     for i in range(MAX_SLOTS):
         shape, rgb = palette[i]

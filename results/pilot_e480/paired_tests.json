@@ -1,20 +1,56 @@
 {
   "C0_vs_C1": {
-    "pairs": 20,
-    "C0_only_success": 10,
-    "C1_only_success": 0,
-    "mcnemar_exact_p": 0.002
+    "pairs": 50,
+    "C0_only_success": 22,
+    "C1_only_success": 2,
+    "mcnemar_exact_p": 0.0
   },
   "C0_vs_C2": {
-    "pairs": 20,
-    "C0_only_success": 15,
-    "C2_only_success": 0,
-    "mcnemar_exact_p": 0.0001
+    "pairs": 50,
+    "C0_only_success": 36,
+    "C2_only_success": 1,
+    "mcnemar_exact_p": 0.0
   },
   "C0_vs_C3": {
-    "pairs": 20,
-    "C0_only_success": 18,
+    "pairs": 50,
+    "C0_only_success": 38,
     "C3_only_success": 0,
     "mcnemar_exact_p": 0.0
+  },
+  "C0_vs_C4": {
+    "pairs": 50,
+    "C0_only_success": 43,
+    "C4_only_success": 0,
+    "mcnemar_exact_p": 0.0
+  },
+  "C0_vs_C5": {
+    "pairs": 50,
+    "C0_only_success": 35,
+    "C5_only_success": 0,
+    "mcnemar_exact_p": 0.0
+  },
+  "C2_vs_C4": {
+    "pairs": 50,
+    "C2_only_success": 8,
+    "C4_only_success": 0,
+    "mcnemar_exact_p": 0.0078
+  },
+  "C2_vs_C5": {
+    "pairs": 50,
+    "C2_only_success": 6,
+    "C5_only_success": 6,
+    "mcnemar_exact_p": 1.0
+  },
+  "C5_vs_C3": {
+    "pairs": 50,
+    "C5_only_success": 5,
+    "C3_only_success": 2,
+    "mcnemar_exact_p": 0.4531
+  },
+  "C4_vs_C3": {
+    "pairs": 50,
+    "C4_only_success": 0,
+    "C3_only_success": 5,
+    "mcnemar_exact_p": 0.0625
   }
 }

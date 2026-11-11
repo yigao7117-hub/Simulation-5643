@@ -3,14 +3,14 @@
   "kind": "similar",
   "n": 5,
   "desc": "+5 target-similar distractors",
-  "episodes": 20,
-  "successes": 0,
-  "success_rate": 0.0,
+  "episodes": 50,
+  "successes": 5,
+  "success_rate": 0.1,
   "failure_types": {
-    "wrong_object": 5,
-    "timeout_fail_stack_green": 10,
-    "timeout_fail_grasp_green": 4,
-    "manipulation_drop": 1
+    "wrong_object": 14,
+    "timeout_fail_stack_green": 21,
+    "timeout_fail_grasp_green": 7,
+    "manipulation_drop": 3
   },
   "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_480.pth",
   "seed_base": 1000,
