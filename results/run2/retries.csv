@@ -1,0 +1,7 @@
+condition,process_launches,restarts_after_drop,discarded_invalid_episodes,crashed_launches,episodes_not_in_first_launch
+C0,1,0,0,0,0
+C1,4,3,0,0,40
+C2,6,5,0,0,34
+C3,5,3,0,1,39
+C4,4,3,0,0,37
+C5,5,3,0,1,37

@@ -1,0 +1,7 @@
+condition,manipulation_drop,timeout_fail_grasp_green,timeout_fail_grasp_red,timeout_fail_stack_green,timeout_fail_stack_red,wrong_object
+C0,0,4,0,9,1,0
+C1,3,8,0,10,2,2
+C2,5,12,1,20,0,7
+C3,3,13,1,8,2,14
+C4,3,10,0,22,3,9
+C5,3,12,1,18,1,9

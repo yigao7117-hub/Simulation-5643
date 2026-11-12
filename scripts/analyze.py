@@ -1,7 +1,8 @@
 """Aggregate a run's per-condition episodes.csv into a summary table + paired tests + figure.
 
 Usage: python3 scripts/analyze.py results/<run_name>
-Outputs (in the run dir): summary_all.csv, paired_tests.json, failure_breakdown.csv, success_rates.png
+Outputs (in the run dir): summary_all.csv, paired_tests.json, failure_breakdown.csv, success_rates.png,
+  and for instrumented runs: effort_summary.csv, failure_timing.csv, retries.csv
 """
 import csv
 import json
@@ -83,6 +84,76 @@ for a, b in [("C2", "C4"), ("C2", "C5"), ("C5", "C3"), ("C4", "C3")]:
                                 "mcnemar_exact_p": round(mcnemar_exact(x, y), 4)}
 with open(os.path.join(run_dir, "paired_tests.json"), "w") as f:
     json.dump(tests, f, indent=2)
+
+# ---- inference effort, failure timing, retries (instrumented runs only) ----
+def _f(x):
+    return float(x) if x not in ("", None) else None
+
+
+def _mean(xs):
+    xs = [x for x in xs if x is not None]
+    return round(sum(xs) / len(xs), 2) if xs else ""
+
+
+effort_rows, timing_rows, retry_rows = [], [], []
+for c, d in data.items():
+    eps = list(d.values())
+    if not eps or "infer_ms_total" not in eps[0]:
+        continue
+    fails = [r for r in eps if r["success"] == "0"]
+    succ = [r for r in eps if r["success"] == "1"]
+    calls = sum(int(r["policy_calls"]) for r in eps)
+    tot = sum(float(r["infer_ms_total"]) for r in eps)
+    after_f = sum(float(r["infer_ms_after_last_milestone"]) for r in fails)
+    tot_f = sum(float(r["infer_ms_total"]) for r in fails)
+    effort_rows.append({
+        "condition": c, "episodes": len(eps), "policy_calls": calls,
+        "infer_ms_per_call_mean": round(tot / calls, 3),
+        "infer_ms_per_call_p95_mean": _mean([_f(r["infer_ms_p95"]) for r in eps]),
+        "infer_ms_per_call_max": max(float(r["infer_ms_max"]) for r in eps),
+        "envstep_ms_mean": _mean([_f(r["envstep_ms_mean"]) for r in eps]),
+        "infer_s_per_episode_success": _mean([_f(r["infer_ms_total"]) / 1000 for r in succ]),
+        "infer_s_per_episode_failure": _mean([_f(r["infer_ms_total"]) / 1000 for r in fails]),
+        "calls_per_episode_success": _mean([_f(r["policy_calls"]) for r in succ]),
+        "calls_per_episode_failure": _mean([_f(r["policy_calls"]) for r in fails]),
+        "infer_s_total_failures": round(tot_f / 1000, 1),
+        "share_of_failure_inference_after_last_milestone": round(after_f / tot_f, 3) if tot_f else "",
+        "wall_s_per_episode_mean": _mean([_f(r["episode_wall_s"]) for r in eps]),
+    })
+    timing_rows.append({
+        "condition": c,
+        "step_grasp_red_mean": _mean([_f(r["step_grasp_red"]) for r in eps]),
+        "step_stack_red_mean": _mean([_f(r["step_stack_red"]) for r in eps]),
+        "step_grasp_green_mean": _mean([_f(r["step_grasp_green"]) for r in eps]),
+        "success_steps_mean": _mean([_f(r["steps"]) for r in succ]),
+        "fail_last_milestone_step_mean": _mean([_f(r["last_milestone_step"]) for r in fails]),
+        "fail_steps_after_last_milestone_mean": _mean([_f(r["steps_after_last_milestone"]) for r in fails]),
+        "fail_first_wrong_object_step_mean": _mean([_f(r["step_first_wrong_object"]) for r in fails]),
+        "fail_timeout": sum(1 for r in fails if r["outcome"] == "timeout"),
+        "fail_drop": sum(1 for r in fails if r["outcome"] == "cube_dropped"),
+        **{f"fail_last_milestone={m}": sum(1 for r in fails if r["max_stage"] == m)
+           for m in ["none", "grasped_red", "stacked_red", "grasped_green"]},
+    })
+    cdir = os.path.join(run_dir, f"eval_{c}")
+    att = list(csv.DictReader(open(os.path.join(cdir, "attempts.csv")))) if os.path.exists(os.path.join(cdir, "attempts.csv")) else []
+    ev = list(csv.DictReader(open(os.path.join(cdir, "events.csv")))) if os.path.exists(os.path.join(cdir, "events.csv")) else []
+    retry_rows.append({
+        "condition": c, "process_launches": len(att),
+        "restarts_after_drop": sum(1 for e in ev if e["event"] == "restart_after_drop"),
+        "discarded_invalid_episodes": sum(1 for e in ev if e["event"] == "episode_discarded_invalid_drop"),
+        "crashed_launches": sum(1 for a in att if a["exit_code"] != "0"),  # e.g. 139 = segfault; the episode in progress is lost and rerun
+        "episodes_not_in_first_launch": sum(1 for r in eps if r.get("attempt", "1") != "1"),
+    })
+
+for name, rr in [("effort_summary.csv", effort_rows), ("failure_timing.csv", timing_rows), ("retries.csv", retry_rows)]:
+    if rr:
+        with open(os.path.join(run_dir, name), "w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rr[0].keys()))
+            w.writeheader()
+            w.writerows(rr)
+        print(f"--- {name}")
+        for r in rr:
+            print(r)
 
 for r in rows:
     print(r)

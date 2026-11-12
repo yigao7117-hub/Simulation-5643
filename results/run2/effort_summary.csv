@@ -1,0 +1,7 @@
+condition,episodes,policy_calls,infer_ms_per_call_mean,infer_ms_per_call_p95_mean,infer_ms_per_call_max,envstep_ms_mean,infer_s_per_episode_success,infer_s_per_episode_failure,calls_per_episode_success,calls_per_episode_failure,infer_s_total_failures,share_of_failure_inference_after_last_milestone,wall_s_per_episode_mean
+C0,50,20263,5.245,8.47,22.914,60.03,1.24,4.4,251.75,800.0,61.5,0.813,28.64
+C1,50,27238,4.855,6.26,20.185,53.31,1.62,3.67,324.6,764.92,91.7,0.804,31.76
+C2,50,37139,6.866,14.15,27.251,97.17,2.41,5.4,403.4,780.49,242.9,0.679,83.08
+C3,50,36357,5.956,11.78,22.517,79.25,2.99,4.63,494.67,778.17,189.7,0.752,64.5
+C4,50,38013,6.625,14.33,24.181,94.29,3.63,5.13,495.0,777.19,241.0,0.722,81.11
+C5,50,36361,6.638,14.21,22.711,93.35,2.13,5.2,340.0,780.02,228.6,0.743,78.29

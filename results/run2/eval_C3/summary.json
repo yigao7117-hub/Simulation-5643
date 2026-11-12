@@ -1,0 +1,20 @@
+{
+  "condition": "C3",
+  "kind": "similar",
+  "n": 5,
+  "desc": "+5 target-similar distractors",
+  "episodes": 50,
+  "successes": 9,
+  "success_rate": 0.18,
+  "failure_types": {
+    "wrong_object": 14,
+    "timeout_fail_grasp_green": 13,
+    "timeout_fail_stack_green": 8,
+    "manipulation_drop": 3,
+    "timeout_fail_stack_red": 2,
+    "timeout_fail_grasp_red": 1
+  },
+  "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_480.pth",
+  "seed_base": 1000,
+  "horizon": 800
+}

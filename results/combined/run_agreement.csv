@@ -1,0 +1,7 @@
+condition,runs,seeds,same_outcome,agreement
+C0,run1 vs run2,50,35,0.7
+C1,run1 vs run2,50,40,0.8
+C2,run1 vs run2,50,41,0.82
+C3,run1 vs run2,50,42,0.84
+C4,run1 vs run2,50,47,0.94
+C5,run1 vs run2,50,44,0.88

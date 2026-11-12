@@ -1,0 +1,7 @@
+run,condition,process_launches,restarts_after_drop,crashed_launches,discarded_invalid_episodes
+run2,C0,1,0,0,0
+run2,C1,4,3,0,0
+run2,C2,6,5,0,0
+run2,C3,5,3,1,0
+run2,C4,4,3,0,0
+run2,C5,5,3,1,0

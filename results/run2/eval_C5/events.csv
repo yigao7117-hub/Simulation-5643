@@ -1,0 +1,9 @@
+time,condition,attempt,event,episode,seed,detail
+2026-11-11 22:21:02,C5,1,process_start,,,gpu=NVIDIA GeForce RTX 5090
+2026-11-11 22:37:25,C5,1,restart_after_drop,12,1012,drop at step 419
+2026-11-11 22:37:50,C5,2,process_start,,,gpu=NVIDIA GeForce RTX 5090
+2026-11-11 22:39:13,C5,2,restart_after_drop,15,1015,drop at step 367
+2026-11-11 22:39:39,C5,3,process_start,,,gpu=NVIDIA GeForce RTX 5090
+2026-11-11 22:45:50,C5,4,process_start,,,gpu=NVIDIA GeForce RTX 5090
+2026-11-11 23:03:37,C5,4,restart_after_drop,32,1032,drop at step 735
+2026-11-11 23:04:02,C5,5,process_start,,,gpu=NVIDIA GeForce RTX 5090

@@ -1,0 +1,19 @@
+{
+  "condition": "C2",
+  "kind": "ordinary",
+  "n": 5,
+  "desc": "+5 ordinary distractors",
+  "episodes": 50,
+  "successes": 5,
+  "success_rate": 0.1,
+  "failure_types": {
+    "wrong_object": 7,
+    "timeout_fail_grasp_green": 12,
+    "timeout_fail_stack_green": 20,
+    "manipulation_drop": 5,
+    "timeout_fail_grasp_red": 1
+  },
+  "checkpoint": "checkpoints/bc_rnn_image/IsaacContrib-Stack-Cube-Franka-IK-Rel-Visuomotor/bc_rnn_image_franka_stack/20261110161441/models/model_epoch_480.pth",
+  "seed_base": 1000,
+  "horizon": 800
+}

@@ -1,0 +1,10 @@
+comparison,pairs,only_first_success,only_second_success,mcnemar_exact_p
+C0 vs C1,100,41,10,0.0
+C0 vs C2,100,67,1,0.0
+C0 vs C3,100,68,3,0.0
+C0 vs C4,100,76,0,0.0
+C0 vs C5,100,68,3,0.0
+C2 vs C4,100,12,2,0.0129
+C2 vs C5,100,9,10,1.0
+C5 vs C3,100,8,8,1.0
+C4 vs C3,100,3,14,0.0127

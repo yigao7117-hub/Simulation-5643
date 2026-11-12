@@ -1,0 +1,7 @@
+condition,desc,episodes,successes,success_rate,ci95_low,ci95_high,run1_rate,run2_rate
+C0,original,100,79,0.79,0.7,0.858,0.86,0.72
+C1,+2 ordinary,100,48,0.48,0.385,0.577,0.46,0.5
+C2,+5 ordinary,100,13,0.13,0.078,0.21,0.16,0.1
+C3,+5 similar (cube+colour),100,14,0.14,0.085,0.221,0.1,0.18
+C4,"+5 cubes, ordinary colours",100,3,0.03,0.01,0.085,0.0,0.06
+C5,"+5 ordinary shapes, similar colours",100,14,0.14,0.085,0.221,0.16,0.12

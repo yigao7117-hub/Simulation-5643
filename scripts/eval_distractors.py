@@ -63,6 +63,24 @@ WRONG_Z = 0.08
 WARMUP_STEPS = 3
 INVALID_DROP_STEPS = 5
 STAGES = ["none", "grasped_red", "stacked_red", "grasped_green"]  # subtask_terms progression
+MILESTONES = ["grasp_1", "stack_1", "grasp_2"]  # -> grasped_red, stacked_red, grasped_green
+ATTEMPT = int(os.environ.get("EVAL_ATTEMPT", "1"))  # process launch number, set by run_eval_resilient.sh
+
+
+def log_event(out_dir, event, episode="", seed="", detail=""):
+    """Append-only run log: process starts, discarded episodes, restarts (survives crashes)."""
+    path = os.path.join(out_dir, "events.csv")
+    new = not os.path.exists(path)
+    with open(path, "a", newline="") as f:
+        w = csv.writer(f)
+        if new:
+            w.writerow(["time", "condition", "attempt", "event", "episode", "seed", "detail"])
+        w.writerow([time.strftime("%Y-%m-%d %H:%M:%S"), args.condition, ATTEMPT, event, episode, seed, detail])
+
+
+def _sync():
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
 
 
 def frame(obs_dict):
@@ -106,20 +124,37 @@ def run_episode(env, policy, success_term, ep, out_dir, image_keys):
         c1.write_root_pose_to_sim_index(root_pose=pose, env_ids=torch.tensor([0], device=env.device))
     stage, wrong_steps, min_d = 0, 0, float("inf")
     outcome, steps = "timeout", args.horizon
+    first_step = {m: None for m in MILESTONES}  # first policy step at which each milestone was reached
+    first_wrong = None
+    infer_ms, envstep_ms, stage_trace, dist_trace = [], [], [], []
+    t_ep = time.perf_counter()
     for t in range(args.horizon):
+        _sync()
+        t0 = time.perf_counter()
         act = policy(policy_obs(obs_dict, image_keys))
+        _sync()
+        infer_ms.append((time.perf_counter() - t0) * 1000.0)
         act_t = torch.from_numpy(act).to(env.device).view(1, -1)
         ee = obs_dict["policy"]["eef_pos"][0].cpu().numpy()
         if dpos:
             d = min(np.hypot(ee[0] - x, ee[1] - y) for x, y in dpos)
             min_d = min(min_d, d)
+            dist_trace.append(d)
             if act[-1] < 0 and ee[2] < WRONG_Z and d < WRONG_XY:
                 wrong_steps += 1
+                if first_wrong is None:
+                    first_wrong = t + 1
+        t1 = time.perf_counter()
         obs_dict, _, terminated, truncated, _ = env.step(act_t)
+        envstep_ms.append((time.perf_counter() - t1) * 1000.0)
         sub = obs_dict["subtask_terms"]
-        for s_idx, key in enumerate(["grasp_1", "stack_1", "grasp_2"], start=1):
-            if bool(sub[key][0]) and stage < s_idx:
-                stage = s_idx
+        for s_idx, key in enumerate(MILESTONES, start=1):
+            if bool(sub[key][0]):
+                if first_step[key] is None:
+                    first_step[key] = t + 1
+                if stage < s_idx:
+                    stage = s_idx
+        stage_trace.append(stage)
         if not args.no_video:
             frames.append(frame(obs_dict))
         if bool(success_term.func(env, **success_term.params)[0]):
@@ -143,14 +178,35 @@ def run_episode(env, policy, success_term, ep, out_dir, image_keys):
         failure = {0: "fail_grasp_red", 1: "fail_stack_red", 2: "fail_grasp_green", 3: "fail_stack_green"}[stage]
         failure = "timeout_" + failure
 
+    wall_s = time.perf_counter() - t_ep
     if not args.no_video:
         import imageio
 
         imageio.mimsave(os.path.join(out_dir, "videos", f"ep{ep:02d}_seed{seed}_{outcome}.mp4"), frames, fps=20)
+
+    # per-step trace (inference / env-step latency, milestone stage, EE-distractor distance)
+    np.savez_compressed(
+        os.path.join(out_dir, "traces", f"ep{ep:02d}_seed{seed}.npz"),
+        infer_ms=np.array(infer_ms, np.float32), envstep_ms=np.array(envstep_ms, np.float32),
+        stage=np.array(stage_trace, np.int8), ee_distractor_xy=np.array(dist_trace, np.float32),
+    )
+    inf = np.array(infer_ms)
+    reached = [first_step[m] for m in MILESTONES if first_step[m] is not None]
+    last_ms = max(reached) if reached else 0  # step of the last milestone reached (0 = none)
+    after = inf[last_ms:]  # policy calls spent after the last milestone (unproductive for failures)
     return {
         "episode": ep, "seed": seed, "outcome": outcome, "success": int(outcome == "success"), "steps": steps,
         "max_stage": STAGES[stage], "failure_type": failure, "wrong_object_steps": wrong_steps,
         "min_ee_distractor_xy": round(min_d, 4) if dpos else "", "distractors": json.dumps(dpos),
+        "step_grasp_red": first_step["grasp_1"] or "", "step_stack_red": first_step["stack_1"] or "",
+        "step_grasp_green": first_step["grasp_2"] or "", "step_first_wrong_object": first_wrong or "",
+        "last_milestone_step": last_ms, "steps_after_last_milestone": steps - last_ms,
+        "policy_calls": len(inf), "infer_ms_total": round(float(inf.sum()), 1),
+        "infer_ms_mean": round(float(inf.mean()), 3), "infer_ms_p50": round(float(np.percentile(inf, 50)), 3),
+        "infer_ms_p95": round(float(np.percentile(inf, 95)), 3), "infer_ms_max": round(float(inf.max()), 3),
+        "infer_ms_after_last_milestone": round(float(after.sum()), 1),
+        "envstep_ms_mean": round(float(np.mean(envstep_ms)), 3), "episode_wall_s": round(wall_s, 2),
+        "attempt": ATTEMPT,
     }
 
 
@@ -159,6 +215,8 @@ def main():
     sub = "preview" if args.preview else "eval"
     out_dir = os.path.join(PROJECT, "results", args.run_name, f"{sub}_{args.condition}")
     os.makedirs(os.path.join(out_dir, "videos"), exist_ok=True)
+    if not args.preview:
+        os.makedirs(os.path.join(out_dir, "traces"), exist_ok=True)
 
     cfg = parse_env_cfg(args.task, device=args.device, num_envs=1, overrides=hydra_overrides)
     cfg.observations.policy.concatenate_terms = False
@@ -178,6 +236,12 @@ def main():
 
             device = TorchUtils.get_torch_device(try_to_use_cuda=True)
             policy, _ = FileUtils.policy_from_checkpoint(ckpt_path=args.checkpoint, device=device)
+            # Timing hygiene: one throw-away forward pass so CUDA/cuDNN initialisation is not charged to
+            # episode 0 (the RNN state is reset by start_episode() at the start of every episode).
+            policy.start_episode()
+            with torch.inference_mode():
+                policy(policy_obs(env.reset()[0], image_keys))
+            log_event(out_dir, "process_start", detail=f"gpu={torch.cuda.get_device_name(0)}")
         rows = []
         csv_path = os.path.join(out_dir, "episodes.csv")
         if not args.preview and os.path.exists(csv_path):  # resume after a crash: keep finished episodes
@@ -196,6 +260,7 @@ def main():
                     # The sim was left corrupted by an earlier blow-up: a cube "drops" right after reset.
                     # Discard and restart the process (run_eval_resilient.sh resumes from episodes.csv).
                     print(f"[INVALID] ep{ep} dropped at step {r['steps']} -> restarting process", flush=True)
+                    log_event(out_dir, "episode_discarded_invalid_drop", ep, r["seed"], f"dropped at step {r['steps']}")
                     break
                 rows.append(r)
                 print(f"[EVAL] {args.condition} ep{ep} {r.get('outcome', 'preview')} {r.get('failure_type', '')}", flush=True)
@@ -203,6 +268,7 @@ def main():
                 if r.get("outcome") == "cube_dropped":
                     # A real drop can leave PhysX in a bad state that reset() does not clear: start a fresh process.
                     print("[RESTART] after drop", flush=True)
+                    log_event(out_dir, "restart_after_drop", ep, r["seed"], f"drop at step {r['steps']}")
                     break
         env.close()
 

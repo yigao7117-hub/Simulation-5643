@@ -1,0 +1,7 @@
+condition,episodes,infer_ms_per_call,infer_ms_p95,envstep_ms,calls_per_success,calls_per_failure,infer_s_per_success,infer_s_per_failure,failure_inference_share_after_last_milestone
+C0,50,5.24,8.47,60.03,251.75,800.0,1.24,4.4,0.813
+C1,50,4.85,6.26,53.31,324.6,764.92,1.62,3.67,0.804
+C2,50,6.87,14.15,97.17,403.4,780.49,2.41,5.4,0.679
+C3,50,5.96,11.78,79.25,494.67,778.17,2.99,4.63,0.752
+C4,50,6.63,14.33,94.29,495.0,777.19,3.63,5.13,0.722
+C5,50,6.64,14.21,93.35,340.0,780.02,2.13,5.2,0.743
